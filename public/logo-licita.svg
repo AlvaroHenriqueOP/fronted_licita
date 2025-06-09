@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Texto "Licita" em cinza escuro -->
+  <text x="20" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="#4a4a4a">Licita</text>
+  
+  <!-- Círculo vermelho -->
+  <circle cx="350" cy="50" r="40" fill="#BE1E1F"/>
+  
+  <!-- Texto "em prática" em branco dentro do círculo -->
+  <text x="350" y="45" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="white" text-anchor="middle">em</text>
+  <text x="350" y="58" font-family="Arial, sans-serif" font-size="10" font-weight="normal" fill="white" text-anchor="middle">prática</text>
+</svg> 
