@@ -2,17 +2,23 @@
 
 import React, { useState, FormEvent } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { FaEnvelope, FaLock, FaBuilding, FaFileContract, FaChartLine, FaClipboardCheck } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+// Importações para navegação e autenticação
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
-const [email, setEmail] = useState('');
-const [password, setPassword] = useState('');
-const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState('');
+  const router = useRouter();
+  const auth = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Array de ícones relacionados a licitações
-const backgroundIcons = [
+  const backgroundIcons = [
     { Icon: FaBuilding, top: '15%', left: '10%', size: '3rem', opacity: 0.12, rotate: 15 },
     { Icon: FaFileContract, top: '25%', left: '80%', size: '2.5rem', opacity: 0.1, rotate: -10 },
     { Icon: FaChartLine, top: '70%', left: '15%', size: '2.8rem', opacity: 0.13, rotate: 5 },
@@ -21,36 +27,52 @@ const backgroundIcons = [
     { Icon: FaFileContract, top: '85%', left: '40%', size: '2.2rem', opacity: 0.1, rotate: -15 },
     { Icon: FaChartLine, top: '10%', left: '40%', size: '2.4rem', opacity: 0.12, rotate: 10 },
     { Icon: FaClipboardCheck, top: '40%', left: '5%', size: '2.1rem', opacity: 0.09, rotate: -8 },
-];
+  ];
 
-const handleLogin = async (email: string, password: string) => {
+  // Versão real de conexão com o backend
+  const handleLogin = async (username: string, password: string) => {
     setIsLoading(true);
     setError('');
     
     try {
-      // Simulação de chamada à API
-    console.log('Chamando API de login com:', email, password);
-    
-      // Simulando um atraso para mostrar o estado de carregamento
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-      // Aqui seria feita a chamada real à API
-      // const response = await api.login(email, password);
-    
-      // Redirecionamento após login bem-sucedido
-      // router.push('/dashboard');
+      console.log('Chamando API de login com:', username, password);
+      
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Credenciais inválidas. Tente novamente.');
+      }
+      
+      console.log('Login bem-sucedido! Token:', data.access_token);
+      
+      // Usar o AuthContext para salvar o token e gerenciar o estado de autenticação
+      auth.login(data.access_token);
+      
+      // Redirecionamento para a página de agentes
+      router.push('/agentes');
     } catch (err) {
-    console.error('Erro ao fazer login:', err);
-    setError('Credenciais inválidas. Por favor, tente novamente.');
+      console.error('Erro ao fazer login:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
-    setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
-const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     handleLogin(email, password);
-};
+  };
 
 return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -168,9 +190,11 @@ return (
         <div className="p-8">
                   <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <img 
+              <Image 
                 src="/fotos/logo_licita.png" 
                 alt="Licita em Prática" 
+                width={160}
+                height={64}
                 className="h-16 w-auto"
               />
             </div>
@@ -191,7 +215,7 @@ return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-secondary">
-                Email
+                Nome de usuário
             </label>
             <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -200,13 +224,13 @@ return (
                 <input
                 id="email"
                 name="email"
-                type="email"
-                autoComplete="email"
+                type="text"
+                autoComplete="username"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10 block w-full rounded-lg border border-gray-light/20 py-3 text-gray-900 shadow-sm focus:ring-2 focus:ring-primary/30 focus:border-primary/50 focus:outline-none"
-                placeholder="seu@email.com"
+                placeholder="Nome de usuário"
                 />
             </div>
             </div>
